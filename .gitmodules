@@ -1,0 +1,3 @@
+[submodule "Bcryptcpp"]
+	path = Bcryptcpp
+	url = https://github.com/Dizarc/Bcryptcpp
