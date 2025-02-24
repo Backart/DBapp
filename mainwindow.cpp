@@ -21,7 +21,7 @@ MainWindow::MainWindow(QWidget *parent)
     // Connecting buttons to the corresponding slots
     connect(ui->pushButton_Login, &QPushButton::clicked, this, &MainWindow::onLoginClicked);
     connect(ui->pushButton_Cancel, &QPushButton::clicked, this, &MainWindow::onCancelClicked);
-    connect(ui->pushButton_SignUp, &QPushButton::clicked, this, &MainWindow::onSignUp); // kljfdvdkfv
+    connect(ui->pushButton_SignUp, &QPushButton::clicked, this, &MainWindow::onSignUp);
 }
 
 MainWindow::~MainWindow()
