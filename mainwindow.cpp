@@ -39,7 +39,7 @@ void MainWindow::onLoginClicked()
 
     UserAuthorization auth;
     if (auth.authenticateUser(username, password, role_id, errorMessage))
-        this->close();  // Закриваємо головне вікно після успішного входу
+        this->close();  // close головне вікно після успішного входу fdvdfvdv
 
 }
 
