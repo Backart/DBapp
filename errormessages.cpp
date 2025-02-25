@@ -2,35 +2,40 @@
 
 ErrorMessages::ErrorMessages() {}
 
-void ErrorMessages::showWarning(ErrorCode code, const QString& details) {
-    QString message;
-    switch (code) {
-    case ERROR_400:
-        message = "Bad Request. " + details;
-        break;
-    case ERROR_401:
-        message = "Unauthorized access. " + details;
-        break;
-    default:
-        message = "Unknown warning. " + details;
-        break;
-    }
-    QMessageBox::warning(nullptr, "Warning", message);
-}
+void ErrorMessages::showMessage(ErrorCode code, const QString& details) {
+    static const QMap<ErrorCode, QString> messages = {
+        {ERROR_100, "Continue"},
+        {ERROR_101, "Switching Protocols"},
+        {ERROR_200, "OK"},
+        {ERROR_201, "Created"},
+        {ERROR_204, "No Content"},
+        {ERROR_301, "Moved Permanently"},
+        {ERROR_302, "Found"},
+        {ERROR_304, "Not Modified"},
+        {ERROR_400, "Bad Request"},
+        {ERROR_401, "Unauthorized"},
+        {ERROR_403, "Forbidden"},
+        {ERROR_404, "Not Found"},
+        {ERROR_500, "Internal Server Error"},
+        {ERROR_502, "Bad Gateway"},
+        {ERROR_503, "Service Unavailable"}
+    };
 
-void ErrorMessages::showInfo(const QString& title, const QString& message) {
-    QMessageBox::information(nullptr, title, message);
-}
+    QString message = messages.contains(code) ? messages[code] : "Unknown error";
+    message += ". " + details;
 
-void ErrorMessages::showCritical(ErrorCode code, const QString& details) {
-    QString message;
-    switch (code) {
-    case ERROR_500:
-        message = "Internal Server Error. " + details;
-        break;
-    default:
-        message = "Unknown critical error. " + details;
-        break;
+    QMessageBox::Icon icon;
+    if (code >= ERROR_500) {
+        icon = QMessageBox::Critical;
+    } else if (code >= ERROR_400) {
+        icon = QMessageBox::Warning;
+    } else {
+        icon = QMessageBox::Information;
     }
-    QMessageBox::critical(nullptr, "Critical Error", message);
+
+    QMessageBox msgBox;
+    msgBox.setIcon(icon);
+    msgBox.setWindowTitle("Message");
+    msgBox.setText(message);
+    msgBox.exec();
 }

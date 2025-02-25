@@ -12,7 +12,8 @@ bool UserAuthorization::authenticateUser(const QString& username, const QString&
     if (!dbQueries->authenticateUser(username, password, role_id, errorMessage))
         return false;
 
-    ErrorMessages::showInfo("Login", "Login successful!\nWelcome, " + username);
+    errorMessage = "Login successful!\nWelcome , ";
+    ErrorMessages::showMessage(ErrorMessages::ERROR_200, errorMessage + username);
     openUserInterface(role_id, username);
     return true;
 }
@@ -20,7 +21,7 @@ bool UserAuthorization::authenticateUser(const QString& username, const QString&
 bool UserAuthorization::validateInput(const QString& username, const QString& password, QString& errorMessage) {
     if (username.isEmpty() || password.isEmpty()) {
         errorMessage = "Please enter both username and password.";
-        ErrorMessages::showWarning(ErrorMessages::ERROR_400, errorMessage);
+        ErrorMessages::showMessage(ErrorMessages::ERROR_400, errorMessage);
         return false;
     }
 

@@ -38,10 +38,8 @@ void DialogRegisterWindow::onRegister() {
     int role_id = 2;  // Роль за замовчуванням - звичайний користувач
     QString errorMessage;
 
-    if (dbQueries.registerUser(username, password, confirmPassword, role_id, errorMessage)) {
-        QMessageBox::information(this, "Success", "User registered successfully!");
+    if (dbQueries.registerUser(username, password, confirmPassword, role_id, errorMessage))
         this->accept();
-    }
 }
 
 void DialogRegisterWindow::onCancelClicked()
