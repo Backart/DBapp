@@ -33,6 +33,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         databasequeries.h databasequeries.cpp
         errormessages.h errormessages.cpp
         securityutils.h securityutils.cpp
+        settingsconfigeditor.h settingsconfigeditor.cpp settingsconfigeditor.ui
 
     )
 
