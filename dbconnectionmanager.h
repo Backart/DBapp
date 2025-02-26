@@ -7,6 +7,7 @@
 #include <QSettings>
 #include <QDir>
 #include <QCoreApplication>
+#include <QStandardPaths>
 
 class DBConnectionManager
 {
