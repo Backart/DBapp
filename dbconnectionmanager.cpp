@@ -1,5 +1,4 @@
 #include "dbconnectionmanager.h"
-#include <QStandardPaths>
 
 DBConnectionManager::DBConnectionManager() {
     // якщо буду робити окреме вікно для конфігурації
@@ -33,8 +32,12 @@ DBConnectionManager::DBConnectionManager() {
     QSettings settings(configFilePath, QSettings::IniFormat);
     */
 
-    QSettings settings("C:/Users/monk/Documents/Projects/QT_Work/Education_QT/SqlLiteBDApp/config/dataConnectConfig.ini", QSettings::IniFormat);
-    // qDebug() << "Config file exists:" << QFile::exists("C:/Users/monk/Documents/Projects/QT_Work/Education_QT/SqlLiteBDApp/config/dataConnectConfig.ini");
+
+    // Отримуємо шлях до папки проєкту
+    QString projectDir = QCoreApplication::applicationDirPath() + "/../../config";
+    QString configPath = QDir::cleanPath(projectDir + "/dataConnectConfig.ini");
+
+    QSettings settings(configPath, QSettings::IniFormat);
 
     QString host = settings.value("Database/host", "127.0.0.1").toString();
     int port = settings.value("Database/port", 5432).toInt();
