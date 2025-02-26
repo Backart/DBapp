@@ -9,7 +9,8 @@
 #include <QSqlQueryModel>
 
 #include "errormessages.h"
-#include "bcryptcpp.h"
+
+#include "securityutils.h"
 
 class DatabaseQueries
 {

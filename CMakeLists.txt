@@ -32,6 +32,8 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         userauthorization.h userauthorization.cpp
         databasequeries.h databasequeries.cpp
         errormessages.h errormessages.cpp
+        securityutils.h securityutils.cpp
+
     )
 
 # Define target properties for Android with Qt 6 as:

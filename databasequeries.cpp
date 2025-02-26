@@ -2,14 +2,6 @@
 
 DatabaseQueries::DatabaseQueries(QSqlDatabase& db) : database(db) {}
 
-QString hashPassword(const QString& password) {
-    return QString::fromStdString(bcryptcpp::generateHash(password.toStdString()));
-}
-
-bool verifyPassword(const QString& password, const QString& hash) {
-    return bcryptcpp::validatePassword(password.toStdString(), hash.toStdString());
-}
-
 bool DatabaseQueries::authenticateUser(const QString& username, const QString& password, int& role_id, QString& errorMessage) {
     QSqlQuery query(database);
     query.prepare("SELECT password, role_id FROM users WHERE username = :username");
@@ -31,7 +23,7 @@ bool DatabaseQueries::authenticateUser(const QString& username, const QString& p
     qDebug() << "Role ID: " << role_id;
 
 
-    if (!verifyPassword(password, storedHash)) {
+    if (!SecurityUtils::verifyPassword(password, storedHash)) {
         ErrorMessages::showMessage(ErrorMessages::ERROR_401, query.lastError().text());
         return false;
     }
@@ -51,7 +43,7 @@ bool DatabaseQueries::registerUser(const QString& username, const QString& passw
         return false;
     }
 
-    QString hashedPassword = hashPassword(password); // Хешуємо пароль
+    QString hashedPassword = SecurityUtils::hashPassword(password); // Хешуємо пароль
 
     query.prepare("INSERT INTO users (username, password, role_id) VALUES (:username, :password, :role_id)");
     query.bindValue(":username", username);
@@ -63,7 +55,7 @@ bool DatabaseQueries::registerUser(const QString& username, const QString& passw
         return false;
     }
 
-    ErrorMessages::showMessage(ErrorMessages::ERROR_500, query.lastError().text());
+    ErrorMessages::showMessage(ErrorMessages::ERROR_200, query.lastError().text());
     return true;
 }
 
