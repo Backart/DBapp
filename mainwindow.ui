@@ -107,6 +107,12 @@
           <strikeout>false</strikeout>
          </font>
         </property>
+        <property name="inputMask">
+         <string/>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
        </widget>
       </item>
       <item>
@@ -190,6 +196,33 @@
       <bool>false</bool>
      </property>
     </widget>
+    <widget class="QPushButton" name="pushButton_DBconnect">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>170</y>
+       <width>101</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>Times New Roman</family>
+       <italic>true</italic>
+       <bold>false</bold>
+       <underline>true</underline>
+      </font>
+     </property>
+     <property name="text">
+      <string>Connection to DB</string>
+     </property>
+     <property name="checkable">
+      <bool>false</bool>
+     </property>
+     <property name="autoRepeat">
+      <bool>false</bool>
+     </property>
+    </widget>
    </widget>
    <widget class="QLabel" name="label_picLogin">
     <property name="geometry">
@@ -211,7 +244,7 @@
      <x>0</x>
      <y>0</y>
      <width>605</width>
-     <height>20</height>
+     <height>21</height>
     </rect>
    </property>
   </widget>

@@ -22,6 +22,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->pushButton_Login, &QPushButton::clicked, this, &MainWindow::onLoginClicked);
     connect(ui->pushButton_Cancel, &QPushButton::clicked, this, &MainWindow::onCancelClicked);
     connect(ui->pushButton_SignUp, &QPushButton::clicked, this, &MainWindow::onSignUp);
+    connect(ui->pushButton_DBconnect, &QPushButton::clicked, this, &MainWindow::onDBConfiguration);
 }
 
 MainWindow::~MainWindow()
@@ -57,4 +58,12 @@ void MainWindow::onSignUp()
     DialogRegisterWindow *registerWindow = new DialogRegisterWindow(DBConnection, this);
     // Відкриваємо вікно реєстрації
     registerWindow->exec();  // Викликає модальне вікно (не дає взаємодіяти з іншими вікнами, поки воно відкрите)
+}
+
+void MainWindow::onDBConfiguration()
+{
+    // Створюємо об'єкт вікна configWindow
+    SettingsConfigEditor *configWindow = new SettingsConfigEditor(DBConnection, this);
+    // Відкриваємо вікно configWindow
+    configWindow->exec();  // Викликає модальне вікно (не дає взаємодіяти з іншими вікнами, поки воно відкрите)
 }

@@ -13,6 +13,8 @@
 #include "dbconnectionmanager.h"
 #include "userauthorization.h"
 
+#include "settingsconfigeditor.h"
+
 QT_BEGIN_NAMESPACE
 namespace Ui {
 class MainWindow;
@@ -31,6 +33,7 @@ private slots:
     void onLoginClicked();    // Слот для кнопки "Login"
     void onCancelClicked();   // Слот для кнопки "Cancel"
     void onSignUp();
+    void onDBConfiguration();
 
     //void openUserInterface(int role_id, QString username);
 
