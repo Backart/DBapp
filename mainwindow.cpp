@@ -47,9 +47,7 @@ void MainWindow::onLoginClicked()
 // Slot for the "Cancel" button
 void MainWindow::onCancelClicked()
 {
-    // Clear input fields for username and password
-    ui->lineEdit_UserName->clear();
-    ui->lineEdit_Password->clear();
+    this->close();
 }
 
 void MainWindow::onSignUp()

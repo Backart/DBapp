@@ -57,3 +57,5 @@ Testing/
 # Windows specific
 Thumbs.db
 ehthumbs.db
+/config
+config/dataConnectConfig.ini

@@ -2,7 +2,12 @@
 #define SETTINGSCONFIGEDITOR_H
 
 #include <QDialog>
+#include <QSettings>
+#include <QDir>
+#include <QCoreApplication>
+#include <QMessageBox>
 
+#include "dbconnectionmanager.h"
 #include "databasequeries.h"
 #include "errormessages.h"
 
@@ -19,11 +24,22 @@ public:
     ~SettingsConfigEditor();
 
 private slots:
-    void onDBConfiguration();
+
+    void onSaveButtonClicked();
+    void onCancelButtonClicked();
+
+    void ensureConfigFileExists();
+
+    QString getConfigFilePath();
+
 
 private:
     Ui::SettingsConfigEditor *ui;
     DatabaseQueries dbQueries;
+
+    QString configPath;
+
+    void loadCurrentConfig();
 };
 
 #endif // SETTINGSCONFIGEDITOR_H
