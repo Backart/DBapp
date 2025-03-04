@@ -23,8 +23,16 @@ void UserWindow::loadUserOrders()
     QString errorMessage;
     QSqlQueryModel *model = new QSqlQueryModel();
 
-    if (dbQueries.windowUser(model, errorMessage))
+    if (dbQueries.windowUser(model, errorMessage)) {
         ui->tableView->setModel(model);
 
-}
+        // Автоматичне налаштування розміру колонок
+        // ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
+        // Робимо останню колонку розтягуваною
+        // ui->tableView->horizontalHeader()->setStretchLastSection(true);
+
+        // Дозволяємо користувачеві змінювати ширину колонок вручну
+        ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
+    }
+}
