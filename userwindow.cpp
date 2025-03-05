@@ -9,6 +9,9 @@ UserWindow::UserWindow(QSqlDatabase& db, QWidget *parent)
     ui->setupUi(this);
 
     loadUserOrders();
+
+    connect(ui->pushButton_UpdateDB, &QPushButton::clicked, this, &UserWindow::loadUserOrders);
+
 }
 
 UserWindow::~UserWindow()
@@ -21,7 +24,7 @@ void UserWindow::loadUserOrders()
     qDebug() << "Username in UserWindow: user";
 
     QString errorMessage;
-    QSqlQueryModel *model = new QSqlQueryModel();
+    QSqlTableModel *model = new QSqlTableModel();
 
     if (dbQueries.windowUser(model, errorMessage)) {
         ui->tableView->setModel(model);

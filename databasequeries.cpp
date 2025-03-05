@@ -72,15 +72,15 @@ bool DatabaseQueries::windowAdmin(QSqlQueryModel* model, QString& errorMessage){
     return true;
 }
 
-bool DatabaseQueries::windowUser(QSqlQueryModel* model, QString& errorMessage){
+bool DatabaseQueries::windowUser(QSqlTableModel* model, QString& errorMessage) {
+    model->setTable("orders");
+    model->select(); // Виконує запит автоматично
 
-    QSqlQuery query(database);
-    query.prepare("SELECT * FROM orders");
-
-    if (!query.exec()) {
-        ErrorMessages::showMessage(ErrorMessages::ERROR_400, query.lastError().text());
+    if (model->lastError().isValid()) {
+        errorMessage = model->lastError().text();
+        ErrorMessages::showMessage(ErrorMessages::ERROR_400, errorMessage);
         return false;
     }
-    model->setQuery(std::move(query));
+
     return true;
 }

@@ -7,6 +7,7 @@
 #include <QString>
 #include <QMessageBox>
 #include <QSqlQueryModel>
+#include <QSqlTableModel>
 
 #include "errormessages.h"
 
@@ -21,7 +22,7 @@ public:
     bool registerUser(const QString& username, const QString& password, const QString& confirmPassword, int& role_id, QString& errorMessage);
 
     bool windowAdmin(QSqlQueryModel* model, QString& errorMessage);
-    bool windowUser(QSqlQueryModel* model, QString& errorMessage);
+    bool windowUser(QSqlTableModel* model, QString& errorMessage);
 
 private:
     QSqlDatabase& database;

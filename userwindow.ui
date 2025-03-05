@@ -44,7 +44,7 @@
      </rect>
     </property>
    </widget>
-   <widget class="QPushButton" name="pushButton">
+   <widget class="QPushButton" name="pushButton_UpdateDB">
     <property name="geometry">
      <rect>
       <x>50</x>
@@ -54,7 +54,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>оновити БД</string>
+     <string>Update DB</string>
     </property>
    </widget>
    <widget class="QPushButton" name="pushButton_2">
@@ -96,7 +96,7 @@
        <rect>
         <x>20</x>
         <y>10</y>
-        <width>911</width>
+        <width>921</width>
         <height>71</height>
        </rect>
       </property>
@@ -136,7 +136,7 @@
      <x>0</x>
      <y>0</y>
      <width>996</width>
-     <height>20</height>
+     <height>21</height>
     </rect>
    </property>
   </widget>
