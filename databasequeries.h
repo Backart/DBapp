@@ -8,6 +8,8 @@
 #include <QMessageBox>
 #include <QSqlQueryModel>
 #include <QSqlTableModel>
+#include <QJsonObject>
+#include <QJsonDocument>
 
 #include "errormessages.h"
 
@@ -23,6 +25,7 @@ public:
 
     bool windowAdmin(QSqlQueryModel* model, QString& errorMessage);
     bool windowUser(QSqlTableModel* model, QString& errorMessage);
+    bool tableHistory(QSqlQueryModel* model, QString& errorMessage);
 
 private:
     QSqlDatabase& database;

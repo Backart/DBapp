@@ -76,6 +76,12 @@ bool DatabaseQueries::windowUser(QSqlTableModel* model, QString& errorMessage) {
     model->setTable("orders");
     model->select(); // Виконує запит автоматично
 
+    if (!model->submitAll()) {
+        qDebug() << "Error saving changes:" << model->lastError().text();
+        return false;
+    }
+    qDebug() << "Changes saved successfully!";
+
     if (model->lastError().isValid()) {
         errorMessage = model->lastError().text();
         ErrorMessages::showMessage(ErrorMessages::ERROR_400, errorMessage);
@@ -84,3 +90,83 @@ bool DatabaseQueries::windowUser(QSqlTableModel* model, QString& errorMessage) {
 
     return true;
 }
+
+bool DatabaseQueries::tableHistory(QSqlQueryModel* model, QString& errorMessage){
+    QSqlQuery query(database);
+    query.prepare("SELECT * FROM history");
+
+    if (!query.exec()) {
+        ErrorMessages::showMessage(ErrorMessages::ERROR_400, query.lastError().text());
+        return false;
+    }
+    model->setQuery(std::move(query));
+    return true;
+}
+
+void logHistory(const QString &action, const QString &table, int recordId,
+                const QMap<QString, QVariant> &oldData, const QMap<QString, QVariant> &newData) {
+    // Виключаємо системні таблиці
+    static const QSet<QString> excludedTables = {"role", "users", "history"};
+    if (excludedTables.contains(table)) return;
+
+    // Створення SQL-запиту для вставки в таблицю історії
+    QSqlQuery query;
+    query.prepare(R"(
+        INSERT INTO history (action_type, table_name, record_id, user_name, timestamp, changes)
+        VALUES (?, ?, ?, CURRENT_USER, NOW(), ?)
+    )");
+
+    QJsonObject changes;  // Об'єкт для збереження змін
+    // Порівнюємо старі та нові дані
+    for (auto it = oldData.constBegin(); it != oldData.constEnd(); ++it) {
+        const QString &key = it.key();
+        if (oldData.value(key) != newData.value(key)) {
+            changes[key] = QString("Changed from '%1' to '%2'")
+            .arg(oldData.value(key).toString(), newData.value(key).toString());
+        }
+    }
+
+    // Додаємо значення в запит
+    query.addBindValue(action);
+    query.addBindValue(table);
+    query.addBindValue(recordId);
+    query.addBindValue(QString(QJsonDocument(changes).toJson(QJsonDocument::Compact)));
+
+    // Виконання запиту
+    if (!query.exec()) {
+        qDebug() << "Error inserting history log:" << query.lastError().text();
+    }
+}
+
+
+/*void logHistory(const QString &action, const QString &table, int recordId,
+                const QMap<QString, QVariant> &oldData, const QMap<QString, QVariant> &newData) {
+
+    // Виключаємо системні таблиці
+    static const QSet<QString> excludedTables = {"role", "users", "history"};
+    if (excludedTables.contains(table)) return;
+
+    QSqlQuery query;
+    query.prepare(R"(
+        INSERT INTO history (action_type, table_name, record_id, user_name, timestamp, changes)
+        VALUES (?, ?, ?, CURRENT_USER, NOW(), ?)
+    )");
+
+    QJsonObject changes;
+    for (auto it = oldData.constBegin(); it != oldData.constEnd(); ++it) {
+        const QString &key = it.key();
+        if (oldData.value(key) != newData.value(key)) {
+            changes[key] = QString("Changed from '%1' to '%2'")
+            .arg(oldData.value(key).toString(), newData.value(key).toString());
+        }
+    }
+
+    query.addBindValue(action);
+    query.addBindValue(table);
+    query.addBindValue(recordId);
+    query.addBindValue(QString(QJsonDocument(changes).toJson(QJsonDocument::Compact)));
+
+    if (!query.exec()) {
+        qDebug() << "Error inserting history log:" << query.lastError().text();
+    }
+}*/

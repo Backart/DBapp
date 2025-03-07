@@ -27,6 +27,10 @@ private:
 
     void loadUserOrders();
 
+    void loadHistory();
+
+    void onReLoginButtonClicked();
+
     DatabaseQueries dbQueries; // Додаємо об'єкт для запитів до БД
 };
 
