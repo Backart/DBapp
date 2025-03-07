@@ -24,7 +24,7 @@
      </rect>
     </property>
    </widget>
-   <widget class="QTreeView" name="treeView">
+   <widget class="QTreeView" name="treeView_tableDB">
     <property name="geometry">
      <rect>
       <x>20</x>
@@ -34,7 +34,7 @@
      </rect>
     </property>
    </widget>
-   <widget class="QTextEdit" name="textEdit">
+   <widget class="QTextEdit" name="textEdit_search">
     <property name="geometry">
      <rect>
       <x>670</x>
@@ -57,7 +57,7 @@
      <string>Update DB</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="pushButton_2">
+   <widget class="QPushButton" name="pushButton_re_login_singup">
     <property name="geometry">
      <rect>
       <x>210</x>
@@ -67,43 +67,10 @@
      </rect>
     </property>
     <property name="text">
-     <string>перезайти під іншим юзером</string>
+     <string>re-LogIn-SingUp</string>
     </property>
    </widget>
-   <widget class="QScrollArea" name="scrollArea">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>520</y>
-      <width>961</width>
-      <height>91</height>
-     </rect>
-    </property>
-    <property name="widgetResizable">
-     <bool>true</bool>
-    </property>
-    <widget class="QWidget" name="scrollAreaWidgetContents">
-     <property name="geometry">
-      <rect>
-       <x>0</x>
-       <y>0</y>
-       <width>959</width>
-       <height>89</height>
-      </rect>
-     </property>
-     <widget class="QListWidget" name="listWidget">
-      <property name="geometry">
-       <rect>
-        <x>20</x>
-        <y>10</y>
-        <width>921</width>
-        <height>71</height>
-       </rect>
-      </property>
-     </widget>
-    </widget>
-   </widget>
-   <widget class="QPushButton" name="pushButton_3">
+   <widget class="QPushButton" name="pushButton_setting">
     <property name="geometry">
      <rect>
       <x>360</x>
@@ -113,10 +80,10 @@
      </rect>
     </property>
     <property name="text">
-     <string>налаштування</string>
+     <string>Setting</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="pushButton_4">
+   <widget class="QPushButton" name="pushButton_save_edit_data">
     <property name="geometry">
      <rect>
       <x>510</x>
@@ -126,7 +93,17 @@
      </rect>
     </property>
     <property name="text">
-     <string>редагування</string>
+     <string>Save edit data</string>
+    </property>
+   </widget>
+   <widget class="QTableView" name="tableView_2">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>530</y>
+      <width>961</width>
+      <height>71</height>
+     </rect>
     </property>
    </widget>
   </widget>
@@ -136,7 +113,7 @@
      <x>0</x>
      <y>0</y>
      <width>996</width>
-     <height>21</height>
+     <height>20</height>
     </rect>
    </property>
   </widget>
