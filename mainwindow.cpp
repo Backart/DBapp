@@ -1,6 +1,9 @@
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
 
+#include <QCoreApplication>
+#include <QSqlDatabase>
+#include <QDebug>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -13,10 +16,11 @@ MainWindow::MainWindow(QWidget *parent)
         qDebug() << "Databased not connect: " << DBConnection.lastError().text();
         qDebug() << DBConnection.lastError().driverText();
         qDebug() << DBConnection.lastError().databaseText();
+        qDebug() << QSqlDatabase::drivers();
     }
 
     // Loading and displaying the login icon image
-    QPixmap pix ("C:/Users/monk/Documents/Projects/QT_Work/Education_QT/SqlLiteBDApp/img/login_icon.png");
+    QPixmap pix ("/home/monk/Documents/Projects/QT_Work/Education_QT/SqlLiteBDApp0/img/login_icon.png");
     ui->label_picLogin->setPixmap(pix.scaled(250,250, Qt::KeepAspectRatio));
     // Connecting buttons to the corresponding slots
     connect(ui->pushButton_Login, &QPushButton::clicked, this, &MainWindow::onLoginClicked);
