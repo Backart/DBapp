@@ -19,12 +19,6 @@ set(PROJECT_SOURCES
         mainwindow.cpp
         mainwindow.h
         mainwindow.ui
-)
-
-if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
-    qt_add_executable(SqlLiteBDApp
-        MANUAL_FINALIZATION
-        ${PROJECT_SOURCES}
         dialogregisterwindow.h dialogregisterwindow.cpp dialogregisterwindow.ui
         adminwindow.h adminwindow.cpp adminwindow.ui
         userwindow.h userwindow.cpp userwindow.ui
@@ -34,8 +28,16 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         errormessages.h errormessages.cpp
         securityutils.h securityutils.cpp
         settingsconfigeditor.h settingsconfigeditor.cpp settingsconfigeditor.ui
+)
 
+if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
+    qt_add_executable(SqlLiteBDApp
+        MANUAL_FINALIZATION
+        ${PROJECT_SOURCES}
     )
+
+set(CMAKE_BUILD_TYPE Debug)
+
 
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET SqlLiteBDApp APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
@@ -58,6 +60,8 @@ endif()
 target_link_libraries(SqlLiteBDApp PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
 target_link_libraries(SqlLiteBDApp PRIVATE Qt${QT_VERSION_MAJOR}::Sql bcryptcpp)
 
+target_compile_definitions(SqlLiteBDApp PRIVATE QT_USE_QT_DEBUG_OUTPUT)
+
 # target_link_libraries(SqlLiteBDApp PRIVATE bcryptcpp)
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
@@ -73,6 +77,8 @@ set_target_properties(SqlLiteBDApp PROPERTIES
     MACOSX_BUNDLE TRUE
     WIN32_EXECUTABLE TRUE
 )
+
+add_definitions(-DQT_USE_QT_DEBUG_OUTPUT)
 
 include(GNUInstallDirs)
 install(TARGETS SqlLiteBDApp
