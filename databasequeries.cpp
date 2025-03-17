@@ -2,6 +2,8 @@
 
 DatabaseQueries::DatabaseQueries(QSqlDatabase& db) : database(db) {}
 
+QSqlDatabase& DatabaseQueries::getDatabase() { return database; }
+
 bool DatabaseQueries::authenticateUser(const QString& username, const QString& password, int& role_id, QString& errorMessage) {
     QSqlQuery query(database);
     query.prepare("SELECT password, role_id FROM users WHERE username = :username");
@@ -91,82 +93,87 @@ bool DatabaseQueries::windowUser(QSqlTableModel* model, QString& errorMessage) {
     return true;
 }
 
-bool DatabaseQueries::tableHistory(QSqlQueryModel* model, QString& errorMessage){
+bool DatabaseQueries::tableHistory(QSqlQueryModel* model, QString& errorMessage) {
+    if (!database.isOpen()) {
+        errorMessage = "Database is not open";
+        return false;
+    }
+
     QSqlQuery query(database);
     query.prepare("SELECT * FROM history");
 
     if (!query.exec()) {
-        ErrorMessages::showMessage(ErrorMessages::ERROR_400, query.lastError().text());
+        errorMessage = query.lastError().text();
+        ErrorMessages::showMessage(ErrorMessages::ERROR_400, errorMessage);
         return false;
     }
-    model->setQuery(std::move(query));
+
+    model->setQuery(query);
     return true;
 }
 
-void logHistory(const QString &action, const QString &table, int recordId,
-                const QMap<QString, QVariant> &oldData, const QMap<QString, QVariant> &newData) {
-    // Виключаємо системні таблиці
+void DatabaseQueries::logHistory(const QString &action, const QString &table, int recordId,
+                                 const QMap<QString, QVariant> &oldData, const QMap<QString, QVariant> &newData) {
+
+
     static const QSet<QString> excludedTables = {"role", "users", "history"};
-    if (excludedTables.contains(table)) return;
-
-    // Створення SQL-запиту для вставки в таблицю історії
-    QSqlQuery query;
-    query.prepare(R"(
-        INSERT INTO history (action_type, table_name, record_id, user_name, timestamp, changes)
-        VALUES (?, ?, ?, CURRENT_USER, NOW(), ?)
-    )");
-
-    QJsonObject changes;  // Об'єкт для збереження змін
-    // Порівнюємо старі та нові дані
-    for (auto it = oldData.constBegin(); it != oldData.constEnd(); ++it) {
-        const QString &key = it.key();
-        if (oldData.value(key) != newData.value(key)) {
-            changes[key] = QString("Changed from '%1' to '%2'")
-            .arg(oldData.value(key).toString(), newData.value(key).toString());
-        }
+    if (excludedTables.contains(table)) {
+        qDebug() << "Table" << table << "is excluded from history logging.";
+        return;
     }
 
-    // Додаємо значення в запит
-    query.addBindValue(action);
-    query.addBindValue(table);
-    query.addBindValue(recordId);
-    query.addBindValue(QString(QJsonDocument(changes).toJson(QJsonDocument::Compact)));
-
-    // Виконання запиту
-    if (!query.exec()) {
-        qDebug() << "Error inserting history log:" << query.lastError().text();
+    if (!database.isOpen()) {
+        qDebug() << "Database is not open";
+        return;
     }
-}
 
+    database.transaction();  // Початок транзакції
 
-/*void logHistory(const QString &action, const QString &table, int recordId,
-                const QMap<QString, QVariant> &oldData, const QMap<QString, QVariant> &newData) {
-
-    // Виключаємо системні таблиці
-    static const QSet<QString> excludedTables = {"role", "users", "history"};
-    if (excludedTables.contains(table)) return;
-
-    QSqlQuery query;
-    query.prepare(R"(
-        INSERT INTO history (action_type, table_name, record_id, user_name, timestamp, changes)
-        VALUES (?, ?, ?, CURRENT_USER, NOW(), ?)
-    )");
+    QSqlQuery query(database);
+    if (!query.prepare(R"(
+    INSERT INTO history (action_type, table_name, record_id, user_name, timestamp, changes)
+    VALUES (?, ?, ?, CURRENT_USER, CURRENT_TIMESTAMP, ?)
+    )")) {
+        qDebug() << "Failed to prepare query:" << query.lastError().text();
+        database.rollback();
+        return;
+    }
 
     QJsonObject changes;
     for (auto it = oldData.constBegin(); it != oldData.constEnd(); ++it) {
         const QString &key = it.key();
-        if (oldData.value(key) != newData.value(key)) {
-            changes[key] = QString("Changed from '%1' to '%2'")
-            .arg(oldData.value(key).toString(), newData.value(key).toString());
+        QVariant oldValue = oldData.value(key);
+        QVariant newValue = newData.value(key);
+
+        if (oldValue != newValue) {
+            QString oldStr = oldValue.canConvert<QString>() ? oldValue.toString() : QString("[Non-string type]");
+            QString newStr = newValue.canConvert<QString>() ? newValue.toString() : QString("[Non-string type]");
+            changes[key] = QString("Changed from '%1' to '%2'").arg(oldStr, newStr);
         }
     }
+
+    if (!query.exec()) {
+        qDebug() << "Error inserting history log:" << query.lastError().text();
+        database.rollback();
+    } else {
+        qDebug() << "History log inserted successfully!";
+    }
+
+    QString changesJson = QString(QJsonDocument(changes).toJson(QJsonDocument::Compact));
+    qDebug() << "Changes JSON:" << changesJson;
 
     query.addBindValue(action);
     query.addBindValue(table);
     query.addBindValue(recordId);
-    query.addBindValue(QString(QJsonDocument(changes).toJson(QJsonDocument::Compact)));
+    query.addBindValue(changesJson);
 
+    qDebug() << "Before query execution";
     if (!query.exec()) {
         qDebug() << "Error inserting history log:" << query.lastError().text();
+        database.rollback();  // Відкат транзакції у випадку помилки
+    } else {
+        qDebug() << "History log inserted successfully!";
+        database.commit();  // Підтвердження транзакції
     }
-}*/
+    qDebug() << "After query execution";
+}

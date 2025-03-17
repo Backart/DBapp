@@ -42,7 +42,7 @@ void MainWindow::onLoginClicked()
     int role_id;
     QString errorMessage;
 
-    UserAuthorization auth;
+    UserAuthorization auth(this);
     if (auth.authenticateUser(username, password, role_id, errorMessage))
         this->close();  // close головне вікно після успішного входу
 

@@ -19,7 +19,7 @@
 class UserAuthorization
 {
 public:
-    UserAuthorization();
+    explicit UserAuthorization(MainWindow *mainWindow);
     bool authenticateUser(const QString& username, const QString& password, int& role_id, QString& errorMessage);
 
 private:
@@ -28,6 +28,8 @@ private:
 
     QSqlDatabase database;
     DatabaseQueries* dbQueries;
+
+    MainWindow *mainWindow;
 
     QString hashPassword(const QString& password);
 };

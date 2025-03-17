@@ -1,6 +1,7 @@
 #include "userauthorization.h"
 
-UserAuthorization::UserAuthorization() {
+UserAuthorization::UserAuthorization(MainWindow *mainWindow) {
+    this->mainWindow = mainWindow;
     database = DBConnectionManager::instance().getDatabase();
     dbQueries = new DatabaseQueries(database);
 }
@@ -33,7 +34,7 @@ void UserAuthorization::openUserInterface(int role_id, const QString& username) 
         AdminWindow *adminWindow = new AdminWindow(database);
         adminWindow->show();
     } else if (role_id == 2) {
-        UserWindow *userWindow = new UserWindow(database);
+        UserWindow *userWindow = new UserWindow(database, mainWindow);
         userWindow->show();
     }
 }

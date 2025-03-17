@@ -10,6 +10,8 @@
 
 #include "databasequeries.h"
 
+class MainWindow;  // Оголошення класу (форвард-декларація)
+
 namespace Ui {
 class UserWindow;
 }
@@ -19,19 +21,20 @@ class UserWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit UserWindow(QSqlDatabase& db, QWidget *parent = nullptr);
+    explicit UserWindow(QSqlDatabase& db, MainWindow *mainWindow, QWidget *parent = nullptr);
     ~UserWindow();
+
+
+private slots:
+    void loadUserOrders();
+    void loadHistory();
+    void onReLoginButtonClicked();
+    void onDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles);
 
 private:
     Ui::UserWindow *ui;
-
-    void loadUserOrders();
-
-    void loadHistory();
-
-    void onReLoginButtonClicked();
-
-    DatabaseQueries dbQueries; // Додаємо об'єкт для запитів до БД
+    DatabaseQueries dbQueries;
+    MainWindow *mainWindow;
 };
 
 #endif // USERWINDOW_H
