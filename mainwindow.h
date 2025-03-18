@@ -29,6 +29,8 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+    QString getUsername() const;
+
 private slots:
     void onLoginClicked();    // Слот для кнопки "Login"
     void onCancelClicked();   // Слот для кнопки "Cancel"

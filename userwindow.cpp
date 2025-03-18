@@ -27,14 +27,17 @@ UserWindow::~UserWindow()
 void UserWindow::loadUserOrders() {
     qDebug() << "Username in UserWindow: user";
 
-    QString errorMessage;
-    QSqlTableModel *model = new QSqlTableModel(this, dbQueries.getDatabase());
+    QSqlTableModel *model = new QSqlTableModel(this);
     model->setTable("orders");  // Встановлюємо таблицю
     model->select();  // Завантажуємо дані
 
     // Підписуємося на сигнал dataChanged
     connect(model, &QSqlTableModel::dataChanged, this, &UserWindow::onDataChanged);
     qDebug() << "Connected dataChanged signal to onDataChanged slot.";
+
+    qDebug() << "BEFORE loadUserOrders() call:";
+    qDebug() << " - dbQueries pointer:" << &dbQueries;
+    qDebug() << " - Database open state:" << dbQueries.getDatabase().isOpen();
 
     ui->tableView_DB->setModel(model);
     ui->tableView_DB->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
@@ -47,85 +50,69 @@ void UserWindow::loadUserOrders() {
     }
 }
 
-void UserWindow::loadHistory()
-{
-    qDebug() << "Username in UserWindow: history";
-
-    QString errorMessage;
-    QSqlTableModel *model = new QSqlTableModel(this, dbQueries.getDatabase());
-    model->setTable("orders");  // Встановлюємо таблицю
-    model->select();  // Завантажуємо дані
-
-    if (dbQueries.tableHistory(model, errorMessage)) {
-
-        // Підписуємося на сигнал dataChanged
-        connect(model, &QSqlTableModel::dataChanged, this, &UserWindow::onDataChanged);
-
-        ui->tableView_history->setModel(model);
-
-        // Автоматичне налаштування розміру колонок
-        // ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-
-        // Робимо останню колонку розтягуваною
-        // ui->tableView->horizontalHeader()->setStretchLastSection(true);
-
-        // Дозволяємо користувачеві змінювати ширину колонок вручну
-        ui->tableView_DB->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
-    }
-}
-
-void UserWindow::onDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles) {
-    Q_UNUSED(bottomRight);
-    Q_UNUSED(roles);
-
-    qDebug() << "Data changed detected!";
-
-    QObject *senderObj = sender();
-    if (!senderObj) {
-        qDebug() << "Sender is null!";
-        return;
-    }
-
-    QSqlTableModel *model = qobject_cast<QSqlTableModel*>(senderObj);
-    if (!model) {
-        qDebug() << "Failed to cast sender to QSqlTableModel. Sender type:" << senderObj->metaObject()->className();
-        return;
-    }
-
-    QVariant recordIdVar = model->data(model->index(topLeft.row(), 0));
-    if (!recordIdVar.isValid() || recordIdVar.isNull()) {
-        qDebug() << "Invalid Record ID!";
-        return;
-    }
-
-    int recordId = recordIdVar.toInt();
-    qDebug() << "Record ID:" << recordId;
-
-
-    // Отримуємо старі дані
-    QMap<QString, QVariant> oldData;
-    for (int i = 0; i < model->columnCount(); ++i) {
-        QString columnName = model->headerData(i, Qt::Horizontal).toString();
-        oldData[columnName] = model->data(model->index(topLeft.row(), i), Qt::EditRole);
-    }
-
-    // Отримуємо нові дані
-    QMap<QString, QVariant> newData;
-    for (int i = 0; i < model->columnCount(); ++i) {
-        QString columnName = model->headerData(i, Qt::Horizontal).toString();
-        newData[columnName] = model->data(model->index(topLeft.row(), i));
-    }
-
-    qDebug() << "Old data:" << oldData;
-    qDebug() << "New data:" << newData;
-
-    // Логуємо зміни
-    dbQueries.logHistory("UPDATE", "orders", recordId, oldData, newData);
-}
-
 void UserWindow::onReLoginButtonClicked() {
     if (mainWindow) {
         mainWindow->show();
     }
     this->close();
+}
+
+void UserWindow::loadHistory()
+{
+    qDebug() << "Username in UserWindow: history";
+
+    QString errorMessage;
+    QSqlTableModel *model = new QSqlTableModel(this);
+    model->setTable("history");
+    model->select();  // Load data from the history table
+
+    ui->tableView_history->setModel(model);
+    ui->tableView_history->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
+
+    qDebug() << "BEFORE loadHistory() call:";
+    qDebug() << " - dbQueries pointer:" << &dbQueries;
+    qDebug() << " - Database open state:" << dbQueries.getDatabase().isOpen();
+
+    if (model->lastError().isValid()) {
+        errorMessage = model->lastError().text();
+        qDebug() << "Error loading history:" << errorMessage;
+    } else {
+        qDebug() << "History loaded successfully!";
+    }
+}
+
+void UserWindow::onDataChanged() {
+
+    qDebug() << "Data changed detected!";
+
+    QSqlTableModel *model = qobject_cast<QSqlTableModel*>(sender());
+    if (!model) {
+        qDebug() << "Failed to cast sender to QSqlTableModel. Sender type:" << sender()->metaObject()->className();
+        return;
+    }
+
+    QString tableName = model->tableName();
+    qDebug() << "Table changed:" << tableName;
+
+    // Отримання поточного користувача
+    QString currentUser = mainWindow->getUsername();
+    qDebug() << "User:" << currentUser;
+
+    qDebug() << "BEFORE logHistory() call:";
+    qDebug() << " - dbQueries pointer:" << &dbQueries;
+    qDebug() << " - Database open state:" << dbQueries.getDatabase().isOpen();
+    qDebug() << " - Current user:" << currentUser;
+    qDebug() << " - Table name:" << tableName;
+
+    // Перевірка, чи база даних відкрита
+    if (!dbQueries.getDatabase().isOpen()) {
+        qDebug() << "Database is not open! Trying to open it...";
+        if (!dbQueries.getDatabase().open()) {
+            qDebug() << "Failed to open database:" << dbQueries.getDatabase().lastError().text();
+            return;
+        }
+    }
+
+    // Запис у лог
+    dbQueries.logHistory(currentUser, tableName);
 }

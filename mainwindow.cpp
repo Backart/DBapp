@@ -1,10 +1,6 @@
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
 
-#include <QCoreApplication>
-#include <QSqlDatabase>
-#include <QDebug>
-
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -45,7 +41,10 @@ void MainWindow::onLoginClicked()
     UserAuthorization auth(this);
     if (auth.authenticateUser(username, password, role_id, errorMessage))
         this->close();  // close головне вікно після успішного входу
+}
 
+QString MainWindow::getUsername() const {
+    return ui->lineEdit_UserName->text();
 }
 
 // Slot for the "Cancel" button

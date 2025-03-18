@@ -24,12 +24,12 @@ public:
     explicit UserWindow(QSqlDatabase& db, MainWindow *mainWindow, QWidget *parent = nullptr);
     ~UserWindow();
 
+    void onDataChanged();
 
 private slots:
     void loadUserOrders();
     void loadHistory();
     void onReLoginButtonClicked();
-    void onDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles);
 
 private:
     Ui::UserWindow *ui;
