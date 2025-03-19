@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>996</width>
-    <height>658</height>
+    <height>618</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -73,7 +73,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
      </rect>
     </property>
     <property name="text">
-     <string>Update DB</string>
+     <string>Add row</string>
     </property>
    </widget>
    <widget class="QPushButton" name="pushButton_re_login_singup">
@@ -108,7 +108,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
       <x>20</x>
       <y>540</y>
       <width>961</width>
-      <height>71</height>
+      <height>51</height>
      </rect>
     </property>
    </widget>
@@ -138,7 +138,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
      <rect>
       <x>20</x>
       <y>520</y>
-      <width>51</width>
+      <width>131</width>
       <height>21</height>
      </rect>
     </property>
@@ -151,7 +151,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
      </font>
     </property>
     <property name="text">
-     <string>History</string>
+     <string>History active user</string>
     </property>
    </widget>
   </widget>

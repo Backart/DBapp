@@ -4,9 +4,10 @@
 #include <QMainWindow>
 #include <QDialog>
 #include <QMessageBox>
-#include <QtSql/QtSql>
 #include <QSqlError>
 #include <QSqlQuery>
+#include <QStandardItemModel>
+#include <QStandardItem>
 
 #include "databasequeries.h"
 
@@ -25,9 +26,10 @@ public:
     ~UserWindow();
 
 private slots:
-    void loadUserOrders();
     void loadHistory();
     void onReLoginButtonClicked();
+    void loadDatabaseTables();
+    void onTableSelected(const QModelIndex &index);
 
 private:
     Ui::UserWindow *ui;
