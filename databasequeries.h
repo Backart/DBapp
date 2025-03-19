@@ -27,9 +27,7 @@ public:
     bool windowUser(QSqlTableModel* model, QString& errorMessage);
     bool tableHistory(QSqlQueryModel* model, QString& errorMessage);
 
-    void logHistory(const QString &user, const QString &table);
-
-    QSqlDatabase& getDatabase();  // Декларація методу
+    QSqlDatabase& getDatabase() { return database; }
 
 private:
     QSqlDatabase& database;

@@ -1,5 +1,6 @@
 #include "userwindow.h"
 #include "mainwindow.h"
+#include "databasequeries.h"
 #include "ui_userwindow.h"
 
 UserWindow::UserWindow(QSqlDatabase& db, MainWindow *mainWindow, QWidget *parent)
@@ -31,14 +32,6 @@ void UserWindow::loadUserOrders() {
     model->setTable("orders");  // Встановлюємо таблицю
     model->select();  // Завантажуємо дані
 
-    // Підписуємося на сигнал dataChanged
-    connect(model, &QSqlTableModel::dataChanged, this, &UserWindow::onDataChanged);
-    qDebug() << "Connected dataChanged signal to onDataChanged slot.";
-
-    qDebug() << "BEFORE loadUserOrders() call:";
-    qDebug() << " - dbQueries pointer:" << &dbQueries;
-    qDebug() << " - Database open state:" << dbQueries.getDatabase().isOpen();
-
     ui->tableView_DB->setModel(model);
     ui->tableView_DB->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
 
@@ -69,50 +62,45 @@ void UserWindow::loadHistory()
     ui->tableView_history->setModel(model);
     ui->tableView_history->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
 
-    qDebug() << "BEFORE loadHistory() call:";
-    qDebug() << " - dbQueries pointer:" << &dbQueries;
-    qDebug() << " - Database open state:" << dbQueries.getDatabase().isOpen();
-
     if (model->lastError().isValid()) {
         errorMessage = model->lastError().text();
         qDebug() << "Error loading history:" << errorMessage;
     } else {
         qDebug() << "History loaded successfully!";
     }
-}
-
-void UserWindow::onDataChanged() {
-
-    qDebug() << "Data changed detected!";
-
-    QSqlTableModel *model = qobject_cast<QSqlTableModel*>(sender());
-    if (!model) {
-        qDebug() << "Failed to cast sender to QSqlTableModel. Sender type:" << sender()->metaObject()->className();
-        return;
-    }
-
-    QString tableName = model->tableName();
-    qDebug() << "Table changed:" << tableName;
 
     // Отримання поточного користувача
     QString currentUser = mainWindow->getUsername();
     qDebug() << "User:" << currentUser;
 
-    qDebug() << "BEFORE logHistory() call:";
-    qDebug() << " - dbQueries pointer:" << &dbQueries;
-    qDebug() << " - Database open state:" << dbQueries.getDatabase().isOpen();
-    qDebug() << " - Current user:" << currentUser;
-    qDebug() << " - Table name:" << tableName;
-
     // Перевірка, чи база даних відкрита
     if (!dbQueries.getDatabase().isOpen()) {
-        qDebug() << "Database is not open! Trying to open it...";
-        if (!dbQueries.getDatabase().open()) {
-            qDebug() << "Failed to open database:" << dbQueries.getDatabase().lastError().text();
-            return;
-        }
+        qDebug() << "Database is not open!";
+        return;
     }
 
-    // Запис у лог
-    dbQueries.logHistory(currentUser, tableName);
+    // Використовуємо dbQueries для створення запиту
+    QSqlQuery query(dbQueries.getDatabase());
+
+    // Start a transaction
+    if (!dbQueries.getDatabase().transaction()) {
+        qDebug() << "Error starting transaction:" << dbQueries.getDatabase().lastError().text();
+        return;
+    }
+
+    query.prepare(R"(
+        INSERT INTO history (user_name)
+        VALUES (?)
+    )");
+
+    query.addBindValue(currentUser);  // Використовуємо currentUser
+
+    if (!query.exec()) {
+        qDebug() << "Error inserting history log:" << query.lastError().text();
+        qDebug() << "Query:" << query.lastQuery();
+        dbQueries.getDatabase().rollback(); // Відкат транзакції у разі помилки
+    } else {
+        dbQueries.getDatabase().commit(); // Підтвердження транзакції
+        qDebug() << "History log inserted successfully!";
+    }
 }

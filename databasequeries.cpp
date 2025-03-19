@@ -2,7 +2,6 @@
 
 DatabaseQueries::DatabaseQueries(QSqlDatabase& db) : database(db) {}
 
-QSqlDatabase& DatabaseQueries::getDatabase() { return database; }
 
 bool DatabaseQueries::authenticateUser(const QString& username, const QString& password, int& role_id, QString& errorMessage) {
     QSqlQuery query(database);
@@ -110,40 +109,4 @@ bool DatabaseQueries::tableHistory(QSqlQueryModel* model, QString& errorMessage)
 
     model->setQuery(query);
     return true;
-}
-
-void DatabaseQueries::logHistory(const QString &user, const QString &table) {
-    if (!database.isOpen()) {
-        qDebug() << "Database is not open!";
-        return;
-    }
-
-    if (user.isEmpty() || table.isEmpty()) {
-        qDebug() << "Error: user or table name is empty!";
-        return;
-    }
-
-    qDebug() << "logHistory User:" << user;
-    qDebug() << "logHistory Table:" << table;
-
-    QSqlQuery query(database);
-    query.prepare(R"(
-        INSERT INTO history (user_name, table_name)
-        VALUES (?, ?)
-    )");
-
-    query.addBindValue(user);
-    query.addBindValue(table);
-
-    qDebug() << "Executing query:" << query.lastQuery();
-    qDebug() << "With values: user =" << user << ", table =" << table;
-
-    if (!query.exec()) {
-        qDebug() << "Error inserting history log:" << query.lastError().text();
-        qDebug() << "Query:" << query.lastQuery();
-        database.rollback(); // Відкат транзакції у разі помилки
-    } else {
-        database.commit(); // Підтвердження транзакції
-        qDebug() << "History log inserted successfully!";
-    }
 }

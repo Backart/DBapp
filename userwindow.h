@@ -24,8 +24,6 @@ public:
     explicit UserWindow(QSqlDatabase& db, MainWindow *mainWindow, QWidget *parent = nullptr);
     ~UserWindow();
 
-    void onDataChanged();
-
 private slots:
     void loadUserOrders();
     void loadHistory();
