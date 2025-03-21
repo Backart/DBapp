@@ -7,6 +7,7 @@ UserWindow::UserWindow(QSqlDatabase& db, MainWindow *mainWindow, QWidget *parent
     , ui(new Ui::UserWindow)
     , dbQueries(db)
     , mainWindow(mainWindow)
+    , proxyModel(new QSortFilterProxyModel(this))
 {
     ui->setupUi(this);
 
@@ -17,7 +18,7 @@ UserWindow::UserWindow(QSqlDatabase& db, MainWindow *mainWindow, QWidget *parent
     connect(ui->pushButton_add_row, &QPushButton::clicked, this, &UserWindow::addRow);
     connect(ui->pushButton_re_login_singup, &QPushButton::clicked, this, &UserWindow::onReLoginButtonClicked);
     connect(ui->treeView_tableDB, &QTreeView::clicked, this, &UserWindow::onTableSelected);
-
+    connect(ui->textEdit_search, &QTextEdit::textChanged, this, &UserWindow::onSearchText);
 
 }
 
@@ -114,16 +115,21 @@ void UserWindow::loadDatabaseTables() {
 }
 
 void UserWindow::onTableSelected(const QModelIndex &index) {
-    QString tableName = index.data().toString();  // Отримуємо ім'я вибраної таблиці
+    QString tableName = index.data().toString();
     qDebug() << "Selected table:" << tableName;
 
-    // Завантажуємо дані вибраної таблиці у tableView_DB
     QSqlTableModel *model = new QSqlTableModel(this);
     model->setTable(tableName);
     model->select();
 
-    ui->tableView_DB->setModel(model);
-    ui->tableView_DB->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
+    proxyModel->setSourceModel(model);
+    proxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);  // Пошук без урахування регістру
+    proxyModel->setFilterKeyColumn(-1);  // Шукає по всіх колонках
+
+    ui->tableView_DB->setModel(proxyModel);
+    ui->tableView_DB->setSortingEnabled(true);  // Дозволяємо сортування
+    ui->tableView_DB->horizontalHeader()->setSortIndicatorShown(true);  // Показуємо іконку сортування
+    ui->tableView_DB->horizontalHeader()->setSectionsClickable(true);  // Дозволяємо клікати заголовки
 }
 
 void UserWindow::addRow() {
@@ -149,5 +155,12 @@ void UserWindow::addRow() {
     ui->tableView_DB->scrollToBottom();
 
     qDebug() << "New row added at index:" << row;
-
 }
+
+void UserWindow::onSearchText() {
+    QString searchText = ui->textEdit_search->toPlainText();
+    qDebug() << "Search query:" << searchText;
+
+    proxyModel->setFilterFixedString(searchText); // Фільтр по всіх колонках
+}
+

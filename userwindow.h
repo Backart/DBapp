@@ -8,6 +8,7 @@
 #include <QSqlQuery>
 #include <QStandardItemModel>
 #include <QStandardItem>
+#include <QSortFilterProxyModel>
 
 #include "databasequeries.h"
 
@@ -31,11 +32,15 @@ private slots:
     void loadDatabaseTables();
     void onTableSelected(const QModelIndex &index);
     void addRow();
+    void onSearchText();
 
 private:
     Ui::UserWindow *ui;
     DatabaseQueries dbQueries;
     MainWindow *mainWindow;
+
+    QSqlTableModel *tableModel = nullptr;  // Додано змінну tableModel
+    QSortFilterProxyModel *proxyModel;
 };
 
 #endif // USERWINDOW_H
