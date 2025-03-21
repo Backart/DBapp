@@ -1,6 +1,5 @@
 #include "userwindow.h"
 #include "mainwindow.h"
-#include "databasequeries.h"
 #include "ui_userwindow.h"
 
 UserWindow::UserWindow(QSqlDatabase& db, MainWindow *mainWindow, QWidget *parent)
@@ -11,11 +10,11 @@ UserWindow::UserWindow(QSqlDatabase& db, MainWindow *mainWindow, QWidget *parent
 {
     ui->setupUi(this);
 
-    // loadUserOrders();
     loadHistory();
     loadDatabaseTables();
     onReLoginButtonClicked();
 
+    connect(ui->pushButton_add_row, &QPushButton::clicked, this, &UserWindow::addRow);
     connect(ui->pushButton_re_login_singup, &QPushButton::clicked, this, &UserWindow::onReLoginButtonClicked);
     connect(ui->treeView_tableDB, &QTreeView::clicked, this, &UserWindow::onTableSelected);
 
@@ -127,4 +126,28 @@ void UserWindow::onTableSelected(const QModelIndex &index) {
     ui->tableView_DB->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
 }
 
+void UserWindow::addRow() {
+    qDebug() << "Adding new row to table";
 
+    if (!ui->tableView_DB->model()) {
+        qDebug() << "No model assigned to tableView_DB!";
+        return;
+    }
+
+    // Перетворюємо модель до QSqlTableModel
+    QSqlTableModel *model = qobject_cast<QSqlTableModel*>(ui->tableView_DB->model());
+    if (!model) {
+        qDebug() << "Failed to cast model to QSqlTableModel";
+        return;
+    }
+
+    // Вставляємо новий рядок
+    int row = model->rowCount();
+    model->insertRow(row);
+
+    // Відображаємо зміну
+    ui->tableView_DB->scrollToBottom();
+
+    qDebug() << "New row added at index:" << row;
+
+}

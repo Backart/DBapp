@@ -110,3 +110,4 @@ bool DatabaseQueries::tableHistory(QSqlQueryModel* model, QString& errorMessage)
     model->setQuery(query);
     return true;
 }
+

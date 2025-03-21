@@ -30,6 +30,7 @@ private slots:
     void onReLoginButtonClicked();
     void loadDatabaseTables();
     void onTableSelected(const QModelIndex &index);
+    void addRow();
 
 private:
     Ui::UserWindow *ui;
