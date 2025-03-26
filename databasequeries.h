@@ -29,6 +29,10 @@ public:
 
     QSqlDatabase& getDatabase() { return database; }
 
+    bool updateUsername(const QString& oldUsername, const QString& newUsername);
+    bool updatePassword(const QString& username, const QString& newPassword);
+    bool isUsernameExist(const QString& username);
+
 private:
     QSqlDatabase& database;
 };

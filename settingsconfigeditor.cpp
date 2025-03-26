@@ -4,7 +4,7 @@
 SettingsConfigEditor::SettingsConfigEditor(QSqlDatabase& db, QWidget *parent)
     : QDialog(parent)
     , ui(new Ui::SettingsConfigEditor)
-    ,dbQueries(db)
+    , dbQueries(db)
 {
     ui->setupUi(this);
 

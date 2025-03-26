@@ -10,7 +10,9 @@
 #include <QStandardItem>
 #include <QSortFilterProxyModel>
 
+#include "settingsconfigeditor.h"
 #include "databasequeries.h"
+#include "settingwindow.h"
 
 class MainWindow;  // Оголошення класу (форвард-декларація)
 
@@ -33,13 +35,14 @@ private slots:
     void onTableSelected(const QModelIndex &index);
     void addRow();
     void onSearchText();
+    void SettingClicked();
 
 private:
     Ui::UserWindow *ui;
     DatabaseQueries dbQueries;
     MainWindow *mainWindow;
 
-    QSqlTableModel *tableModel = nullptr;  // Додано змінну tableModel
+    QSqlTableModel *tableModel = nullptr;
     QSortFilterProxyModel *proxyModel;
 };
 

@@ -111,3 +111,44 @@ bool DatabaseQueries::tableHistory(QSqlQueryModel* model, QString& errorMessage)
     return true;
 }
 
+bool DatabaseQueries::updateUsername(const QString& oldUsername, const QString& newUsername) {
+    QSqlQuery query(database);
+    query.prepare("UPDATE users SET username = :newUsername WHERE username = :oldUsername");
+    query.bindValue(":oldUsername", oldUsername);
+    query.bindValue(":newUsername", newUsername);
+
+    if (!query.exec()) {
+        ErrorMessages::showMessage(ErrorMessages::ERROR_500, query.lastError().text());
+        return false;
+    }
+    return true;
+}
+
+bool DatabaseQueries::updatePassword(const QString& username, const QString& newPassword) {
+    QSqlQuery query(database);
+    query.prepare("UPDATE users SET password = :newPassword WHERE username = :username");
+    query.bindValue(":username", username);
+    query.bindValue(":newPassword", newPassword);
+
+    if (!query.exec()) {
+        ErrorMessages::showMessage(ErrorMessages::ERROR_500, query.lastError().text());
+        return false;
+    }
+    return true;
+}
+
+bool DatabaseQueries::isUsernameExist(const QString& username) {
+    QSqlQuery query(database);
+    query.prepare("SELECT COUNT(*) FROM users WHERE username = :username");
+    query.bindValue(":username", username);
+
+    if (!query.exec()) {
+        ErrorMessages::showMessage(ErrorMessages::ERROR_500, query.lastError().text());
+        return false;
+    }
+
+    // Якщо результат запиту більше 0, то такий користувач існує
+    query.next();
+    return query.value(0).toInt() > 0;
+}
+

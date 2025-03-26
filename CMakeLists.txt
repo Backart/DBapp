@@ -53,6 +53,7 @@ else()
     else()
         add_executable(SqlLiteBDApp
             ${PROJECT_SOURCES}
+            settingwindow.h settingwindow.cpp settingwindow.ui
         )
     endif()
 endif()
