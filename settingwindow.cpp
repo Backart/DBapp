@@ -43,49 +43,46 @@ void settingwindow::onDeleteAccountClicked()
 
 // ---
 
-void settingwindow::onSaveClicked()
-{
-    QString newUsername = ui->lineEdit_UserName->text();
-    QString newPassword = ui->lineEdit_ChangePassword->text();
+void settingwindow::onSaveClicked() {
 
-    // Перевірка, чи були внесені зміни
+    QString currentUsername = dbQueries.getCurrentUsername(); // Отримання поточного імені користувача
+    qDebug() << "currentUsername in onSaveClicked: " << currentUsername;
+    ui->lineEdit_UserName->setText(dbQueries.getCurrentUsername());
+
+    QString newUsername = ui->lineEdit_UserName->text().trimmed();
+    QString newPassword = ui->lineEdit_ChangePassword->text().trimmed();
+    QString errorMessage;
+
     if (newUsername.isEmpty() && newPassword.isEmpty()) {
         QMessageBox::warning(this, "Warning", "No changes detected.");
         return;
     }
 
-    // Отримуємо поточного користувача
-    QString currentUsername = "write you new username";  // Наприклад, ви можете використовувати логіку, щоб отримати ім'я поточного користувача
+    QSqlQueryModel model;
 
-    // Оновлення імені або пароля, якщо це потрібно
-    if (!newUsername.isEmpty()) {
-        // Перевірка унікальності імені користувача
-        if (dbQueries.isUsernameExist(newUsername)) {
+    // Оновлення імені користувача
+    if (!newUsername.isEmpty() && newUsername != currentUsername) {
+        if (dbQueries.isUsernameExist(&model, errorMessage, newUsername)) {
             QMessageBox::warning(this, "Warning", "Username already exists!");
             return;
         }
-        // Оновлення імені користувача в базі
-        if (!dbQueries.updateUsername(currentUsername, newUsername)) {
-            QMessageBox::critical(this, "Error", "Failed to update username.");
+        if (!dbQueries.updateUsername(&model, errorMessage, currentUsername, newUsername)) {
+            QMessageBox::critical(this, "Error", "Failed to update username: " + errorMessage);
             return;
         }
+        currentUsername = newUsername; // Оновлення імені користувача в поточній сесії
     }
 
+    // Оновлення пароля
     if (!newPassword.isEmpty()) {
-        // Хешуємо новий пароль перед збереженням
-        QString hashedPassword = SecurityUtils::hashPassword(newPassword);
-
-        // Оновлення пароля користувача в базі
-        if (!dbQueries.updatePassword(currentUsername, hashedPassword)) {
-            QMessageBox::critical(this, "Error", "Failed to update password.");
+        if (!dbQueries.updatePassword(&model, errorMessage, currentUsername, newPassword)) {
+            QMessageBox::critical(this, "Error", "Failed to update password: " + errorMessage);
             return;
         }
     }
 
-    // Якщо все пройшло успішно
     QMessageBox::information(this, "Success", "Settings saved successfully!");
 }
-
 
 void settingwindow::onCloseClicked()
 {

@@ -29,12 +29,18 @@ public:
 
     QSqlDatabase& getDatabase() { return database; }
 
-    bool updateUsername(const QString& oldUsername, const QString& newUsername);
-    bool updatePassword(const QString& username, const QString& newPassword);
-    bool isUsernameExist(const QString& username);
+    bool updateUsername(QSqlQueryModel* model, QString& errorMessage, const QString& oldUsername, const QString& newUsername);
+    bool updatePassword(QSqlQueryModel* model, QString& errorMessage, const QString& username, const QString& newPassword);
+    bool isUsernameExist(QSqlQueryModel* model, QString& errorMessage, const QString& username);
+
+
+    QString getCurrentUsername(); // отримання юзернейма
 
 private:
     QSqlDatabase& database;
+
+    QString currentUsername;
+
 };
 
 #endif // DATABASEQUERIES_H

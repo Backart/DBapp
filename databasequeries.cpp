@@ -2,6 +2,10 @@
 
 DatabaseQueries::DatabaseQueries(QSqlDatabase& db) : database(db) {}
 
+QString DatabaseQueries::getCurrentUsername() {
+    qDebug() << "currentUsername in getCurrentUsername: " << currentUsername;
+    return currentUsername;
+}
 
 bool DatabaseQueries::authenticateUser(const QString& username, const QString& password, int& role_id, QString& errorMessage) {
     QSqlQuery query(database);
@@ -22,6 +26,7 @@ bool DatabaseQueries::authenticateUser(const QString& username, const QString& p
     role_id = query.value(1).toInt();
     qDebug() << "Stored hash: " << storedHash;
     qDebug() << "Role ID: " << role_id;
+    qDebug() << "username in authenticateUser: " << username;
 
 
     if (!SecurityUtils::verifyPassword(password, storedHash)) {
@@ -29,6 +34,8 @@ bool DatabaseQueries::authenticateUser(const QString& username, const QString& p
         return false;
     }
 
+    currentUsername = username;
+    qDebug() << "currentUsername in authenticateUser: " << currentUsername;
     return true;
 }
 
@@ -111,44 +118,71 @@ bool DatabaseQueries::tableHistory(QSqlQueryModel* model, QString& errorMessage)
     return true;
 }
 
-bool DatabaseQueries::updateUsername(const QString& oldUsername, const QString& newUsername) {
+
+bool DatabaseQueries::updateUsername(QSqlQueryModel* model, QString& errorMessage, const QString& oldUsername, const QString& newUsername) {
+    if (!database.isOpen()) {
+        errorMessage = "Database is not open";
+        return false;
+    }
+
+    QString queryStr = "UPDATE users SET username = :newUsername WHERE username = :oldUsername RETURNING username";
     QSqlQuery query(database);
-    query.prepare("UPDATE users SET username = :newUsername WHERE username = :oldUsername");
+    query.prepare(queryStr);
     query.bindValue(":oldUsername", oldUsername);
     query.bindValue(":newUsername", newUsername);
 
     if (!query.exec()) {
-        ErrorMessages::showMessage(ErrorMessages::ERROR_500, query.lastError().text());
+        errorMessage = query.lastError().text();
+        ErrorMessages::showMessage(ErrorMessages::ERROR_500, errorMessage);
         return false;
     }
+
+    model->setQuery(query);
     return true;
 }
 
-bool DatabaseQueries::updatePassword(const QString& username, const QString& newPassword) {
-    QSqlQuery query(database);
-    query.prepare("UPDATE users SET password = :newPassword WHERE username = :username");
-    query.bindValue(":username", username);
-    query.bindValue(":newPassword", newPassword);
-
-    if (!query.exec()) {
-        ErrorMessages::showMessage(ErrorMessages::ERROR_500, query.lastError().text());
+bool DatabaseQueries::updatePassword(QSqlQueryModel* model, QString& errorMessage, const QString& username, const QString& newPassword) {
+    if (!database.isOpen()) {
+        errorMessage = "Database is not open";
         return false;
     }
+
+    // Хешуємо пароль перед передачею в БД
+    QString hashedPassword = SecurityUtils::hashPassword(newPassword);
+
+    QSqlQuery query(database);
+    query.prepare("UPDATE users SET password = :hashedPassword WHERE username = :username RETURNING username");
+    query.bindValue(":username", username);
+    query.bindValue(":hashedPassword", hashedPassword);
+
+    if (!query.exec()) {
+        errorMessage = query.lastError().text();
+        ErrorMessages::showMessage(ErrorMessages::ERROR_500, errorMessage);
+        return false;
+    }
+
+    model->setQuery(query);
     return true;
 }
 
-bool DatabaseQueries::isUsernameExist(const QString& username) {
-    QSqlQuery query(database);
-    query.prepare("SELECT COUNT(*) FROM users WHERE username = :username");
-    query.bindValue(":username", username);
-
-    if (!query.exec()) {
-        ErrorMessages::showMessage(ErrorMessages::ERROR_500, query.lastError().text());
+bool DatabaseQueries::isUsernameExist(QSqlQueryModel* model, QString& errorMessage, const QString& username) {
+    if (!database.isOpen()) {
+        errorMessage = "Database is not open";
         return false;
     }
 
-    // Якщо результат запиту більше 0, то такий користувач існує
+    QString queryStr = "SELECT COUNT(*) FROM users WHERE username = :username";
+    QSqlQuery query(database);
+    query.prepare(queryStr);
+    query.bindValue(":username", username);
+
+    if (!query.exec()) {
+        errorMessage = query.lastError().text();
+        ErrorMessages::showMessage(ErrorMessages::ERROR_500, errorMessage);
+        return false;
+    }
+
+    model->setQuery(query);
     query.next();
     return query.value(0).toInt() > 0;
 }
-
